@@ -1,0 +1,67 @@
+{
+	"name": "ServiceNow DevTools",
+	"short_name": "SN DevTools",
+	"description": "Developer tool for ServiceNow.(Personal work to ServiceNow)",
+	"author": "Eric Yang",
+	"version": "2.1.1",
+	"permissions": [
+		"tabs",
+		"https://*.service-now.com/*",
+        "storage"
+	],
+	"icons": {
+		"16": "images/icon16.png",
+        "32": "images/icon32.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+	},
+	"background": {
+		"scripts": [
+			"background.js"
+		],
+		"persistent": false
+	},
+	"content_scripts": [{
+		"matches": [
+			"https://*.service-now.com/*"
+		],
+		"exclude_matches": [
+			"https://signon.service-now.com/*",
+			"https://*.service-now.com/*XML=*"
+		],
+		"css": [
+			"content/css/run_sys_scripts.css"
+		],
+		"js": [
+			"js/jquery.js",
+			"content/js/content_script_frame.js"
+		],
+		"all_frames": true
+	}],
+	"commands": {
+        "pop": {
+            "suggested_key": {
+                "default": "Ctrl+2",
+                "mac": "Command+2"
+            },
+            "description": "Pop-In / Pop-Out"
+        }
+	},
+	
+	"page_action": {
+		"default_title": "ServiceNow DevTools",
+		"default_popup": "popup.html",
+        "default_icon": {
+            "16": "images/icon16.png",
+            "32": "images/icon32.png",
+            "48": "images/icon48.png",
+            "128": "images/icon128.png"
+        },
+		"show_matches": ["https://*.service-now.com/*"]
+	},
+
+	"web_accessible_resources": [
+        "js/inject.js"
+    ],
+	"manifest_version": 2
+}

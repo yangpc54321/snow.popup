@@ -1,0 +1,273 @@
+<!doctype html>
+<html data-ng-app="JFLA.SNDEVTOOLS.APP">
+
+<head>
+  <title>SN DevTools</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap-icons.css" rel="stylesheet">
+  <link href="css/popup.css" rel="stylesheet">
+  <script src="js/angular.min.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/popup.js"></script>
+  <script src="js/run_sys_scripts_content.js"></script>
+  <script src="js/jquery.js"></script>
+</head>
+
+<body data-ng-controller="JFLA.SNDEVTOOLS.APP.CTRL">
+  <nav class="nav navbar-inverse">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <span class="navbar-brand">SN DevTools</span>
+      </div>
+      <div class="navbar-icon">
+        <span class="bi-search" title="Open Search Table Page" ng-click="open_search_table_page('search_table.html','url=$1')"></span>
+        <span class="bi-bug-fill" title="Run BackGround Script" ng-click="open_snow('sys.scripts.do')"></span>
+        <span class="bi-box-arrow-in-up-right" title="Open Flow Designer" ng-click="open_snow('$flow-designer.do')"></span>
+        <span class="bi-arrows-fullscreen" title="Pop-In / Pop-Out" ng-click="popup()"></span>
+      </div>
+    </div>
+  </nav>
+
+  <nav class="nav navbar-inverse" style="border-bottom: #78909C 5px solid;">
+    <div class="container-fluid">
+      <ul class="nav nav-tabs">
+        <li class="nav-link" ng-class="{'active':tab_selected=='jfla_session'}" ng-click="select_tab('jfla_session')">
+          <a href="#">Session</a>
+          <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;" ng-if="user.loading && !user.error">
+            <div class="visually-hidden"></div>
+          </span>
+        </li>
+        <li class="nav-link" ng-class="{'active':tab_selected=='jfla_table'}" ng-click="select_tab('jfla_table')">
+          <a href="#">Table</a>
+          <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;" ng-if="find_table.loading">
+            <div class="visually-hidden"></div>
+          </span>
+        </li>
+        <li class="nav-link" ng-class="{'active':tab_selected=='jfla_update'}" ng-click="select_tab('jfla_update')">
+          <a href="#">Updates</a>
+          <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;" ng-if="recent_updates.loading && !recent_updates.error">
+            <div class="visually-hidden"></div>
+          </span>
+        </li>
+        <li class="nav-link" ng-class="{'active':tab_selected=='jfla_nodes'}" ng-click="select_tab('jfla_nodes')">
+          <a href="#">Nodes</a>
+          <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;" ng-if="server_nodes.loading && !server_nodes.error">
+            <div class="visually-hidden"></div>
+          </span>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- table_filter -->
+  <div ng-show="show_tables_filter" class="ng-hide input-group" style="padding-top: 1.5%; padding-left: 1.5%; padding-right: 1.5%;">
+    <input type="search" ng-model="table_filter" class="form-control form-control-sm" style="padding: 0px;"
+      placeholder="Search tables..." spellcheck="false">
+    <button type="button" class="btn btn-outline-secondary" ng-click="refreshTable()">Refresh</button>
+  </div>
+
+  <!-- updates_filter -->
+  <div ng-show="show_updates_filter" class="ng-hide" style="padding-top: 1.5%; padding-left: 1.5%; padding-right: 1.5%;">
+    <input type="search" ng-model="updates_filter" class="form-control form-control-sm" style="padding: 0px;"
+      placeholder="Search in your last 20 updates..." spellcheck="false">
+  </div>
+
+  <!-- Session -->
+  <div class="tab-panel" ng-if="tab_selected=='jfla_session'">
+    <div class="tab-session">
+      <table class="table">
+        <tbody class="session-tbody">
+          <tr>
+            <th class="header">
+              <span class="bi-person-fill" style="font-size: large;"></span>&nbsp;User
+            </th>
+            <td class="value">
+              <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;"
+                ng-if="user.loading && !user.error">
+                <div class="visually-hidden"></div>
+              </span>
+              <a href="#" ng-if="!user.loading && !user.error"
+                ng-click="open_snow('nav_to.do?uri=sys_user.do?sys_id='+user.sys_id, true)">{{user.name}} [{{user.user_name}}]</a>
+              <span ng-if="!user.loading && !user.sys_id">Please log in to ServiceNow</span>
+            </td>
+          </tr>
+          <tr>
+            <th class="header">
+              <span class="bi-server" style="font-size: large;"></span>&nbsp;Update set
+            </th>
+            <td class="value">
+              <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;"
+                ng-if="user.loading && !user.error">
+                <div class="visually-hidden"></div>
+              </span>
+              <a href="#" ng-if="!user.loading && !user.error"
+                ng-click="open_snow('nav_to.do?uri=sys_update_set.do?sys_id='+update_set.sys_id, true)">{{update_set.name}}</a>
+            </td>
+          </tr>
+          <tr>
+            <th class="header">
+              <span class="bi-x-diamond-fill" style="font-size: large;"></span>&nbsp;Scope
+            </th>
+            <td class="value">
+              <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;"
+                ng-if="user.loading && !user.error">
+                <div class="visually-hidden"></div>
+              </span>
+              <a href="#" ng-if="!user.loading && !user.error"
+                ng-click="open_snow('$studio.do?sysparm_transaction_scope='+update_set['application.sys_id'])">{{update_set['application.name']}}</a>
+              <span ng-if="!user.loading && !user.error">[{{update_set['application.scope']}}]</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <!-- Table -->
+  <div class="tab-panel" ng-if="tab_selected=='jfla_table'">
+    <div class="tab-table">
+      <table class="table table-striped table-hover" style="white-space: normal;">
+        <thead class="table-thead" style="width: 98%;">
+          <tr>
+            <th class="label" ng-click="sortByForTable('label')" style="display: table-cell; top: 0px;">
+              Label
+              <span class="sortorder" ng-show="tableSortPropertyName === 'label'" ng-class="{reverse: table_reverse}"></span>
+            </th>
+            <th class="table" ng-click="sortByForTable('name')" style="display: table-cell; top: 0px;">
+              Table
+              <span class="sortorder" ng-show="tableSortPropertyName === 'name'" ng-class="{reverse: table_reverse}"></span>
+            </th>
+            <th class="extends" ng-click="sortByForTable('super_class')" style="display: table-cell; top: 0px;">
+              Extends
+              <span class="sortorder" ng-show="tableSortPropertyName === 'super_class'" ng-class="{reverse: table_reverse}"></span>
+            </th>
+            <th class="scope" ng-click="sortByForTable('sys_scope')" style="display: table-cell; top: 0px;">
+              Scope
+              <span class="sortorder" ng-show="tableSortPropertyName === 'sys_scope'" ng-class="{reverse: table_reverse}"></span>
+            </th>
+            <th class="actions" ng-click="sortByForTable('favorite')" style="display: table-cell; top: 0px;">
+              Actions
+              <span class="sortorder" ng-show="tableSortPropertyName === 'favorite'" ng-class="{reverse: table_reverse}"></span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="table-tbody">
+          <tr ng-repeat="table in table_result_arr | orderBy: tableSortPropertyName: table_reverse | filter: table_filter" ng-if="$index < 250">
+            <td class="label-value">
+              {{table.label}}
+            </td>
+            <td class="table-value">
+                {{table.name}}
+            </td>
+            <td class="extends-value">
+              {{table.super_class}}
+            </td>
+            <td class="scope-value">
+                {{table.sys_scope}}
+            </td>
+            <td class="actions-value">
+              <span class="bi-grid-3x3-gap-fill" title="Show List" ng-click="open_snow('nav_to.do?uri='+table.name+'_list.do', true)"></span>
+              <span class="bi-gear-fill" title="Show Table Definition" ng-click="open_snow('nav_to.do?uri=sys_db_object.do?sys_id='+table.sys_id, false)"></span>
+              <span class="bi-diagram-3-fill" title="Show Schema Map" ng-click="open_snow('generic_hierarchy_erd.do?sysparm_attributes=table='+table.name+',show_internal=true,show_extended=true,show_extended_by=true,table_expansion=', false)"></span>
+              <span ng-if="table.favorite" class="bi-star-fill" title="Add To Favorites" ng-click="addFavorites(table.sys_id)"></span>
+              <span ng-if="!table.favorite" class="bi-star" title="Add To Favorites" ng-click="addFavorites(table.sys_id)"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <label ng-if="table_result_arr.length != 0">Matched: {{(table_result_arr | filter:table_filter).length}} tables, showing max 250</label>
+      <label ng-if="table_result_arr.length == 0">No matches found</label>
+    </div>
+  </div>
+
+  <!-- Updates -->
+  <div class="tab-panel" ng-if="tab_selected=='jfla_update'">
+    <div class="tab-updates">
+      <table class="table table-striped table-hover">
+        <thead class="update-thead" style="width: 98%;">
+          <tr>
+            <th class="type" ng-click="sortByForUpdate('type')" style="display: table-cell; top: 0px;">
+              Type
+              <span class="sortorder" ng-show="updateSortPropertyName === 'type'" ng-class="{reverse: update_reverse}"></span>
+            </th>
+            
+            <th class="name" ng-click="sortByForUpdate('record_name')" style="display: table-cell; top: 0px;">
+              Name
+              <span class="sortorder" ng-show="updateSortPropertyName === 'record_name'" ng-class="{reverse: update_reverse}"></span>
+            </th>
+            
+            <th class="updated" ng-click="sortByForUpdate('sys_created_on')" style="display: table-cell; top: 0px;">
+              Updated
+              <span class="sortorder" ng-show="updateSortPropertyName === 'sys_created_on'" ng-class="{reverse: update_reverse}"></span>
+            </th>
+            
+            <th class="updateSet" ng-click="sortByForUpdate('name')" style="display: table-cell; top: 0px;">
+              Updateset
+              <span class="sortorder" ng-show="updateSortPropertyName === 'name'" ng-class="{reverse: update_reverse}"></span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="update-tbody">
+          <tr ng-repeat="recent_update in recent_updates_arr | orderBy: updateSortPropertyName: update_reverse | filter: updates_filter">
+            <td class="type-value">
+              {{recent_update.type}}
+            </td>
+            <td class="name-value">
+              <a href="#" ng-click="open_snow('sys_metadata.do?sysparm_query=sys_update_name='+recent_update.name)">
+                {{recent_update.record_name}}
+              </a>
+            </td>
+            <td class="updated-value">
+              {{recent_update.sys_created_on}}
+            </td>
+            <td class="updateSet-value">
+              <a href="#" ng-click="open_snow('sys_update_set.do?sys_id='+recent_update.source.sys_id)">
+                {{recent_update.source.name}}
+              </a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <label ng-if="recent_updates_arr.length != 0">Matched: {{(recent_updates_arr | filter:updates_filter).length}} of 30 updates</label>
+      <label ng-if="recent_updates_arr.length == 0">No matches found</label>
+    </div>
+  </div>
+
+  <!-- Nodes -->
+  <div class="tab-panel" ng-if="tab_selected=='jfla_nodes'">
+    <div class="tab-node">
+      <table class="table table-striped table-hover">
+        <thead class="node-thead" style="width: 98%;">
+          <tr>
+            <th class="nodename" ng-click="sortByForNode('system_id')" style="display: table-cell; top: 0px;">
+              Node name
+              <span class="sortorder" ng-show="nodeSortPropertyName === 'system_id'" ng-class="{reverse: node_reverse}"></span>
+            </th>
+            <th class="status" ng-click="sortByForNode('status')" style="display: table-cell; top: 0px;">
+              Status
+              <span class="sortorder" ng-show="nodeSortPropertyName === 'status'" ng-class="{reverse: node_reverse}"></span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="node-tbody">
+          <tr data-ng-repeat="server_node in server_nodes_arr | orderBy: nodeSortPropertyName: node_reverse ">
+            <td class="nodename-value">
+              <a href="#" ng-click="open_snow('sys_cluster_state.do?sys_id='+server_node.sys_id)">
+                {{server_node.system_id}}
+              </a>
+            </td>
+            <td class="status-value">
+              {{server_node.status}}
+              <!-- <span ng-if="server_node.status.toString().toLowerCase() == 'offline'"
+                class="label label-danger">{{server_node.status}}</span> -->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <label ng-if="server_nodes_arr.length != 0">Matched: {{server_nodes_arr.length}} nodes</label>
+      <label ng-if="server_nodes_arr.length == 0">No matches found</label>
+    </div>
+  </div>
+</body>
+
+</html>

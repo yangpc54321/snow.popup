@@ -1,0 +1,87 @@
+@charset "UTF-8";
+
+#header {
+	text-align: center;
+}
+
+#filter {
+	width: 15%;
+	vertical-align: middle;
+}
+
+#label {
+	width: 15%;
+	vertical-align: middle;
+}
+
+#extends {
+	width: 15%;
+	vertical-align: middle;
+}
+
+#scope {
+	width: 15%;
+	vertical-align: middle;
+}
+
+#actions {
+	width: 40%;
+	vertical-align: middle;
+}
+
+#main_table tr.table-danger {
+	background-color: #ffd0d0;
+}
+
+#main_table td em {
+	font-weight: bold;
+	font-style: normal;
+	background-color: yellow;
+}
+
+#main_table {
+	width: 100%;
+}
+
+.py-5 {
+	padding-top: 3rem !important;
+	padding-bottom: 0rem !important;
+}
+
+.filterable {
+	margin-top: 15px;
+}
+
+.btn-primary {
+	color: white;
+	background-color: #37474F !important;
+	border-color: #dee2e6 !important;
+}
+
+.btn-primary:hover {
+	background-color: #78909C !important;
+}
+
+/* sort up*/
+.sortorder:after {
+	content: '\25b2';
+}
+
+/* sort down*/
+.sortorder.reverse:after {
+	content: '\25bc';
+}
+
+@keyframes loading-animation {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+span.strong {
+	font-weight: bolder;
+}

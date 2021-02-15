@@ -1,0 +1,14 @@
+#glideRecordCode.loading {
+	background-image: url("icons/000-bars.gif");
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+#glideRecordQuery {
+	width: 15%;
+}
+
+#openGlideURL {
+	width: 75%;
+	word-wrap: break-word;
+}

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html ng-app="JFLA.SNDEVTOOLS.SEARCH_TABLE">
+
+<head>
+	<title>Search Table</title>
+	<meta http-equiv="content-type" charset="utf-8">
+	<link href="css/bootstrap.min.css" rel="stylesheet">
+	<link href="css/bootstrap-icons.css" rel="stylesheet">
+	<link href="css/search_table.css" rel="stylesheet" />
+	<script src="js/angular.min.js"></script>
+	<script src="js/common.js"></script>
+	<script src="js/search_table.js"></script>
+</head>
+
+<body ng-controller="JFLA.SNDEVTOOLS.SEARCH_TABLE.CTRL" class="bg-light">
+	<div class="container">
+		<div class="py-5 text-center">
+			<h2>Search table</h2>
+			<h4>
+				<div class="label label-default">{{url}}</div>
+			</h4>
+		</div>
+		<div class="row">
+			<div class="panel panel-primary filterable">
+				<table id="main_table" class="table table-hover">
+					<thead>
+						<tr class="filters">
+							<th id="filter"><input type="text" ng-model="name_filter" placeholder="Table"
+									class="form-control" autofocus></th>
+							<th id="label" ng-click="sortByForTable('label')">
+								Label
+								<span class="sortorder" ng-show="tableSortPropertyName === 'label'" ng-class="{reverse: table_reverse}"></span>
+							</th>
+							<th id="extends">
+								Extends
+							</th>
+							<th id="scope">
+								Scope
+							</th>
+							<th id="actions">
+								Actions
+							</th>
+						</tr>
+					</thead>
+					<tbody id="diff_table_body">
+						<tr ng-if="is_loading">
+							<td>
+								<span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;">
+									<div class="visually-hidden"></div>
+								</span>
+							</td>
+						</tr>
+						<tr ng-if="!is_loading && !tables" class="table-danger">
+							<td colspan="2">ERROR LOADING LIST OF TABLES</td>
+						</tr>
+						<tr ng-if="(name_filter) && name_filter.length >= 3"
+							ng-repeat="table in tables | orderBy: tableSortPropertyName: table_reverse | byname:name_filter">
+							<td>
+								<span ng-bind-html="table.name | emphasize:name_filter"></span>
+							</td>
+							<td>
+								<span ng-bind-html="table.label | emphasize:name_filter"></span>
+							</td>
+							<td ng-if="table.super_class != '-'">
+								<a href="#"
+									ng-click="open_page(url+'nav_to.do?uri=sys_db_object.do?sys_id='+table.super_class_sys_id)">
+									<span ng-bind-html="table.super_class | emphasize:name_filter"></span>
+								</a>
+							</td>
+							<td ng-if="table.super_class == '-'">
+								<span ng-bind-html="table.super_class | emphasize:name_filter"></span>
+							</td>
+							<td ng-if="table.sys_scope_isHref == 'true'">
+								<a href="#"
+									ng-click="open_page(url+'$studio.do?sysparm_transaction_scope=' + table.sys_scope_sys_id)">
+									<span ng-bind-html="table.sys_scope | emphasize:name_filter"></span>
+								</a>
+							</td>
+							<td ng-if="table.sys_scope_isHref == 'false'">
+								<span ng-bind-html="table.sys_scope | emphasize:name_filter"></span>
+							</td>
+							<td>
+								<button class="btn btn-primary"
+									ng-click="open_page(url+'nav_to.do?uri='+table.name+'_list.do')">
+									List
+									<span class="bi-grid-3x3-gap-fill"></span>
+								</button>
+								<button class="btn btn-primary"
+									ng-click="open_page(url+'nav_to.do?uri=sys_db_object.do?sys_id='+table.sys_id)">
+									Definition
+									<span class="bi-gear-fill"></span>
+								</button>
+								<button class="btn btn-primary"
+									ng-click="open_page(url+'generic_hierarchy_erd.do?sysparm_attributes=table='+table.name+',show_internal=true,show_extended=true,show_extended_by=true,table_expansion=')">
+									Schema
+									<span class="bi-diagram-3-fill"></span>
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+</body>
+
+</html>
