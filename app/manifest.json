@@ -3,7 +3,7 @@
 	"short_name": "SN DevTools",
 	"description": "Developer tool for ServiceNow.(Personal work to ServiceNow)",
 	"author": "Eric Yang",
-	"version": "2.1.1",
+	"version": "2.1.2",
 	"permissions": [
 		"tabs",
 		"https://*.service-now.com/*",
