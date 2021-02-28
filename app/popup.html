@@ -169,8 +169,7 @@
               <span class="bi-grid-3x3-gap-fill" title="Show List" ng-click="open_snow('nav_to.do?uri='+table.name+'_list.do', true)"></span>
               <span class="bi-gear-fill" title="Show Table Definition" ng-click="open_snow('nav_to.do?uri=sys_db_object.do?sys_id='+table.sys_id, false)"></span>
               <span class="bi-diagram-3-fill" title="Show Schema Map" ng-click="open_snow('generic_hierarchy_erd.do?sysparm_attributes=table='+table.name+',show_internal=true,show_extended=true,show_extended_by=true,table_expansion=', false)"></span>
-              <span ng-if="table.favorite" class="bi-star-fill" title="Add To Favorites" ng-click="addFavorites(table.sys_id)"></span>
-              <span ng-if="!table.favorite" class="bi-star" title="Add To Favorites" ng-click="addFavorites(table.sys_id)"></span>
+              <span ng-attr-id="{{'favorite_table_' + $index}}" ng-class="{'bi-star-fill' : table.favorite, 'bi-star' : !table.favorite}" title="Add To Favorites" ng-click="addFavorites(table.sys_id, $index)"></span>
             </td>
           </tr>
         </tbody>
