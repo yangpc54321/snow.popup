@@ -352,7 +352,7 @@ function pop() {
   });
 }
 
-function saveFavoriteTableToChromeStorage(instance, theName, favoriteArray, sysId) {
+function saveFavoriteTableToChromeStorage(instance, theName, favoriteArray, sysId, indexOf) {
   var saveObj = {};
   var isExists = false;
   var length = favoriteArray.length;
@@ -363,11 +363,13 @@ function saveFavoriteTableToChromeStorage(instance, theName, favoriteArray, sysI
       break;
     }
   }
-
+  var favorite = angular.element(document.getElementById('favorite_table_' + indexOf));
   if (isExists) {
     favoriteArray.remove(sysId);
+    favorite.attr('class','bi-star');
   } else {
     favoriteArray.push(sysId);
+    favorite.attr('class','bi-star-fill');
   }
 
   saveObj[instance + "-" + theName] = favoriteArray;

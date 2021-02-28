@@ -17,7 +17,20 @@ sndevtoolsApp
       }
     };
   });
-
+sndevtoolsApp.directive('highlightOnClick', function () {
+  return {
+    restrict: 'A',
+    link: function ($scope, element) {
+      element.bind('click', function () {
+        if (parseInt(element.text()) === 0) {
+          element.toggleClass('red');
+        } else {
+          element.toggleClass('yellow');
+        }
+      })
+    }
+  }
+});
 sndevtoolsApp
   .controller('JFLA.SNDEVTOOLS.APP.CTRL',
     function ($scope, sampleService) {
@@ -54,7 +67,7 @@ sndevtoolsApp
         error: true,
         loading: true
       };
-      
+
       getCurrentTab(function (tab) {
         chrome.tabs.sendMessage(tab.id, {
           method: "getVars",
@@ -78,11 +91,31 @@ sndevtoolsApp
         if ($scope.listURL || $scope.recordURL) {
           $scope.table = ($scope.listURL || $scope.recordURL).table;
         }
+        // updates sort property
+        $scope.updateSortPropertyName = 'sys_created_on';
+        // desc
+        $scope.update_reverse = true;
 
-        var key = $scope.instance + '-' + $scope.favorite_key;
-        chrome.storage.local.get(key, function (result) {
-          if (result[key] != undefined) {
-            $scope.favorite_tables = result[key];
+        // node sort property
+        $scope.nodeSortPropertyName = 'system_id';
+        // desc
+        $scope.node_reverse = true;
+
+        var favoriteKey = $scope.instance + '-' + $scope.favorite_key;
+        chrome.storage.local.get(favoriteKey, function (result) {
+          if (result[favoriteKey] != undefined) {
+            $scope.favorite_tables = result[favoriteKey];
+          }
+        });
+
+        var sortKey = $scope.instance + '-' + 'table-sort';
+        chrome.storage.local.get(sortKey, function (result) {
+          if (result[sortKey] != undefined) {
+            $scope.tableSortPropertyName = result[sortKey].propertyName;
+            $scope.table_reverse = result[sortKey].reverse;
+          } else {
+            $scope.tableSortPropertyName = 'label';
+            $scope.table_reverse = false;
           }
         });
 
@@ -148,13 +181,13 @@ sndevtoolsApp
         });
       }
 
-      $scope.addFavorites = function (sysId) {
+      $scope.addFavorites = function (sysId, indexOf) {
         var key = $scope.instance + '-' + $scope.favorite_key;
         chrome.storage.local.get(key, function (result) {
           if (result[key] == undefined) {
-            $scope.favorite_tables = saveFavoriteTableToChromeStorage($scope.instance, $scope.favorite_key, $scope.favorite_tables, sysId);
+            $scope.favorite_tables = saveFavoriteTableToChromeStorage($scope.instance, $scope.favorite_key, $scope.favorite_tables, sysId, indexOf);
           } else {
-            $scope.favorite_tables = saveFavoriteTableToChromeStorage($scope.instance, $scope.favorite_key, result[key], sysId);
+            $scope.favorite_tables = saveFavoriteTableToChromeStorage($scope.instance, $scope.favorite_key, result[key], sysId, indexOf);
           }
         });
       }
@@ -456,30 +489,19 @@ sndevtoolsApp
         getCurrentURL(refreshTableHanedler);
       }
 
-      // updates sort property
-      $scope.updateSortPropertyName = 'sys_created_on';
-      // desc
-      $scope.update_reverse = true;
-
       $scope.sortByForUpdate = function (propertyName) {
         $scope.update_reverse = ($scope.updateSortPropertyName === propertyName) ? !$scope.update_reverse : false;
         $scope.updateSortPropertyName = propertyName;
       };
 
-      // table sort property
-      $scope.tableSortPropertyName = 'label';
-      // desc
-      $scope.table_reverse = false;
-
       $scope.sortByForTable = function (propertyName) {
         $scope.table_reverse = ($scope.tableSortPropertyName === propertyName) ? !$scope.table_reverse : false;
         $scope.tableSortPropertyName = propertyName;
+        var table_sort = {};
+        table_sort.reverse = $scope.table_reverse;
+        table_sort.propertyName = $scope.tableSortPropertyName;
+        setToChromeStorageForString($scope.instance, 'table-sort', table_sort);
       };
-
-      // node sort property
-      $scope.nodeSortPropertyName = 'system_id';
-      // desc
-      $scope.node_reverse = true;
 
       $scope.sortByForNode = function (propertyName) {
         $scope.node_reverse = ($scope.nodeSortPropertyName === propertyName) ? !$scope.node_reverse : false;
