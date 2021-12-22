@@ -49,7 +49,7 @@ function getCurrentURL(callback) {
   });
 }
 
-function getCurrentTab(callback, g_ck) {
+function getCK(callback, g_ck) {
   chrome.tabs.query({
     active: true,
     currentWindow: true
@@ -58,6 +58,27 @@ function getCurrentTab(callback, g_ck) {
     if (tab)
       callback(tab, g_ck);
   });
+}
+
+function getCurrentTab(callback) {
+  chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  }, function (tabs) {
+    var tab = tabs[0];
+    if (tab)
+      callback(tab);
+  });
+}
+
+function getParameterByName(name, url) {
+  if (!url) url = window.location.href.toLowerCase();
+  name = name.replace(/[\[\]]/g, "\\$&");
+  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+      results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
 function openNewTab(newURL, callback) {
