@@ -2,6 +2,7 @@
 
 body {
   width: 794px;
+  height: 508px;
   font-family: Arial, sans-serif;
   font-size: small;
   text-align: left;
@@ -73,6 +74,26 @@ td {
 
 .tab-session>.table>.session-tbody .value {
   width: 80%;
+}
+
+/* current record */
+.tab-current-record {
+  padding-top: 0.5%;
+  padding-bottom: 1.5%;
+  padding-left: 1.5%;
+  padding-right: 1.5%;
+}
+
+.tab-current-record>.table>:not(caption)>*>* {
+  padding: 5px;
+}
+
+.tab-current-record>.table>.current-record-tbody .header {
+  width: 25%;
+}
+
+.tab-current-record>.table>.current-record-tbody .value {
+  width: 25%;
 }
 
 /* table */

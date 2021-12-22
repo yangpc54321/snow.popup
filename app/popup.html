@@ -43,6 +43,12 @@
             <div class="visually-hidden"></div>
           </span>
         </li>
+        <li class="nav-link" ng-class="{'active':tab_selected=='jfla_current_record'}" ng-click="select_tab('jfla_current_record')">
+          <a href="#">Record</a>
+          <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;" ng-if="current_record.loading && !current_record.error">
+            <div class="visually-hidden"></div>
+          </span>
+        </li>
         <li class="nav-link" ng-class="{'active':tab_selected=='jfla_update'}" ng-click="select_tab('jfla_update')">
           <a href="#">Updates</a>
           <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;" ng-if="recent_updates.loading && !recent_updates.error">
@@ -179,6 +185,55 @@
     </div>
   </div>
 
+  <!-- Current Record -->
+  <div class="tab-panel" ng-if="tab_selected=='jfla_current_record'">
+    <div class="tab-current-record">
+      <span style="width: 15px; height: 15px;" ng-if="!current_record.loading && current_record.error">
+        <div class="alert alert-danger">The current page is not record page</div>
+      </span>
+      <table ng-if="!current_record.loading && !current_record.error" class="table">
+        <tbody class="current-record-tbody">
+          <tr>
+            <th class="header">
+              <span class="bi-table" style="font-size: larger;"></span>&nbsp;Table Name
+            </th>
+            <td class="value">
+              <span>{{record.table}}</span>
+            </td>
+            <th class="header">
+              <span class="bi-key-fill" style="font-size: larger;"></span>&nbsp;SysID
+            </th>
+            <td class="value">
+              <span>{{record.sys_id}}</span>
+            </td>
+          </tr>
+          <tr>
+            <th class="header">
+              <span class="bi-download" style="font-size: larger;"></span>&nbsp;Show JsonV2
+            </th>
+            <td class="value">
+              <a href="#" ng-click="open_snow(record.table + '.do?JSONv2&sysparm_sys_id='+record.sys_id, false)">Json</a>
+            </td>
+            <th class="header">
+              <span class="bi-download" style="font-size: larger;"></span>&nbsp;Show CSV
+            </th>
+            <td class="value">
+              <a href="#" ng-click="open_snow(record.table + '.do?CSV&sysparm_sys_id='+record.sys_id, false)">CSV</a>
+            </td>
+          </tr>
+          <tr>
+            <th class="header">
+              <span class="bi-list-ul" style="font-size: larger;"></span>&nbsp;Back To List
+            </th>
+            <td class="value">
+              <a href="#" ng-click="open_snow('nav_to.do?uri='+record.table+'_list.do', true)">{{record.table}}</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
   <!-- Updates -->
   <div class="tab-panel" ng-if="tab_selected=='jfla_update'">
     <div class="tab-updates">

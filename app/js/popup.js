@@ -47,6 +47,10 @@ sndevtoolsApp
       $scope.recent_updates_arr = [];
       $scope.server_nodes_arr = [];
 
+      $scope.record = {
+        table: '',
+        sys_id: ''
+      };
       $scope.update_set = {
         error: true,
         loading: true
@@ -54,6 +58,10 @@ sndevtoolsApp
       $scope.find_table = {
         loading: false,
         error: true,
+      };
+      $scope.current_record = {
+        error: true,
+        loading: true
       };
       $scope.recent_updates = {
         error: true,
@@ -150,6 +158,11 @@ sndevtoolsApp
           if ($scope.table_result_arr.length == 0) {
             getCurrentURL(initSearchTableHanedler);
           }
+        }
+        if (jfla == 'jfla_current_record') {
+          $scope.show_tables_filter = false;
+          $scope.show_updates_filter = false;
+          getCurrentTab(getCurrentRecord);
         }
         if (jfla == 'jfla_update') {
           $scope.show_tables_filter = false;
@@ -362,6 +375,31 @@ sndevtoolsApp
         }, foundURL[0], 30, "source,sys_created_on,name,record_name,type");
       }
 
+      getCurrentRecord = function (tab) {
+        $scope.current_record.loading = true;
+        $scope.current_record.error = false;
+        $scope.$apply();
+
+        chrome.tabs.sendMessage(tab.id, {
+          method: "getVars",
+          myVars: "g_form.tableName,NOW.sysId,mySysId,elNames"
+        }, function (response) {
+          $scope.record.table = response.myVars.g_formtableName || getParameterByName("table",response.frameHref);
+          $scope.record.sys_id = response.myVars.NOWsysId || response.myVars.mySysId || getParameterByName("sys_id",response.frameHref);
+          $scope.$apply();
+          if (!$scope.record.sys_id) {
+            $scope.current_record.loading = false;
+            $scope.current_record.error = true;
+            $scope.$apply();
+            return;
+          } else {
+            $scope.current_record.loading = false;
+            $scope.current_record.error = false;
+            $scope.$apply();
+          }
+        });
+      }
+
       getNodes = function (tabURL) {
         $scope.server_nodes.loading = true;
         $scope.server_nodes.error = false;
@@ -395,7 +433,6 @@ sndevtoolsApp
             var query = 'sys_update_nameISNOTEMPTY^ORDERBYlabel^nameNOT LIKElog00^nameNOT LIKEevent00%5EORDERBYlabel';
             var foundURL = tabURL.match(/^https:\/\/[a-zA-Z0-9.-]*\//);
             var url = foundURL[0] + "api/now/table/sys_db_object?sysparm_query=" + query;
-            // var regexp = /[0-9a-f]{32}/;
             getRecordDataJSON(url, function (rows) {
               $scope.table_result_arr = [];
               if (!rows) {

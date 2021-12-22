@@ -42,25 +42,3 @@ function pop() {
         }
     });
 }
-
-// chrome.runtime.onMessage.addListener(
-//     function (request, sender, sendResponse) {
-//         if (request.method == "getGck") {
-//             getGck(request.tabId);
-//             sendResponse({
-//                 gck: g_ck
-//             });
-//         }
-//         return;
-//     });
-
-// function getGck(tabId) {
-//     chrome.tabs.sendMessage(tabId, {
-//         method: "getVars",
-//         myVars: "g_ck"
-//     }, function (response) {
-//         if (response == null || typeof response !== 'object') return;
-//         g_ck = response.myVars.g_ck;
-//         console.log('bk2' + g_ck);
-//     });
-// }
