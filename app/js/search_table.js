@@ -73,7 +73,7 @@ angular
           });
           $scope.is_loading = false;
           $scope.$digest();
-        }, {}, 20000, "sys_id,name,label,super_class,sys_scope");
+        }, 20000, "sys_id,name,label,super_class,sys_scope");
       });
 
       // table sort property
