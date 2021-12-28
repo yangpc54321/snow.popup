@@ -108,7 +108,7 @@ sndevtoolsApp
                 $scope.nodeSortPropertyName = 'system_id';
                 // desc
                 $scope.node_reverse = true;
-
+                //
                 var favoriteKey = $scope.instance + '-' + $scope.favorite_key;
                 chrome.storage.local.get(favoriteKey, function (result) {
                     if (result[favoriteKey] != undefined) {
