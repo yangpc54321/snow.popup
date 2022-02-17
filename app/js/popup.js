@@ -76,6 +76,13 @@ sndevtoolsApp
                 loading: true
             };
 
+            $scope.session = {
+                user: {},
+                update_set: {},
+                error: true,
+                loading: true
+            };
+
             getCurrentTab(function (tab) {
                 chrome.tabs.sendMessage(tab.id, {
                     method: "getVars",
@@ -127,6 +134,7 @@ sndevtoolsApp
                     }
                 });
 
+                //画面初期化時に表示するタブ
                 var tabKey = $scope.instance + '-' + $scope.tab_key;
                 chrome.storage.local.get(tabKey, function (result) {
                     if (result[tabKey] != undefined) {
@@ -138,43 +146,50 @@ sndevtoolsApp
                 });
             });
 
+
+            /**
+             * タブ表示制御
+             */
+            setTabControl = function (show_tables_filter, show_updates_filter) {
+                $scope.show_tables_filter = show_tables_filter;
+                $scope.show_updates_filter = show_updates_filter;
+            };
             $scope.select_tab = function (jfla) {
                 $scope.tab_selected = jfla;
                 setToChromeStorageForString($scope.instance, $scope.tab_key, jfla);
 
+                //「セッション」タブを選択時
                 if (jfla == 'jfla_session') {
-                    $scope.show_tables_filter = false;
-                    $scope.show_updates_filter = false;
-                    if ($scope.update_set.loading) {
-                        getCurrentURL(getCurrentUpdSet);
-                    }
-                    if ($scope.user.loading) {
-                        getCurrentURL(getCurrentUser);
-                    }
+                    setTabControl(false, false);
+                    getCurrentURL(initSessionTab);
                 }
+
+                //「テーブル」タブを選択時
                 if (jfla == 'jfla_table') {
-                    $scope.show_tables_filter = true;
-                    $scope.show_updates_filter = false;
+                    setTabControl(true, false);
                     if ($scope.table_result_arr.length == 0) {
                         getCurrentURL(initSearchTableHanedler);
                     }
                 }
+
+                //「レコード」タブを選択時
                 if (jfla == 'jfla_current_record') {
-                    $scope.show_tables_filter = false;
-                    $scope.show_updates_filter = false;
+                    setTabControl(false, false);
                     getCurrentTab(getCurrentRecord);
                 }
+
+                //「更新セット」タブを選択時
                 if (jfla == 'jfla_update') {
-                    $scope.show_tables_filter = false;
-                    $scope.show_updates_filter = true;
+                    setTabControl(false, true);
                     if ($scope.recent_updates_arr.length != 0) {
                         return;
                     }
                     getCurrentURL(getLastChanges);
                 }
+
+                //「ノード」タブを選択時
                 if (jfla == 'jfla_nodes') {
-                    $scope.show_tables_filter = false;
-                    $scope.show_updates_filter = false;
+                    setTabControl(false, false);
                     if ($scope.server_nodes_arr.length != 0) {
                         return;
                     }
@@ -239,67 +254,34 @@ sndevtoolsApp
                 $scope.$apply();
             };
 
-            /**
-             * 更新セット名の取得
-             */
-            getCurrentUpdSet = function (tabURL) {
-                //更新セット名の表示制御
-                setControl($scope.update_set, true, false);
-                //正規表現でURLの有効性を判定
-                var foundURL = tabURL.match(/^https:\/\/[a-zA-Z0-9.-]*\//);
-                //SNOWのURLである場合
-                if (!isSNOWURL(tabURL) || (foundURL == null)) {
-                    setControl($scope.update_set, true, false);
-                    return;
-                }
-
-                getRecordDataJSON(foundURL[0] + 'api/now/table/sys_user_preference?sysparm_query=name%3Dsys_update_set%5EuserDYNAMIC90d1921e5f510100a9ad2572f2b477fe', function (rows) {
-                    if (rows == null || !rows.length) {
-                        //エラーとして、画面表示を制御する
-                        setControl($scope.update_set, false, true);
-                        return;
-                    }
-
-                    getRecordDataJSON(foundURL[0] + 'api/now/table/sys_update_set?sys_id=' + rows[0].value, function (rows) {
-                        if (rows == null || !rows.length) {
-                            //エラーとして、画面表示を制御する
-                            setControl($scope.update_set, false, true);
-                            return;
-                        }
-
-                        $scope.update_set = rows[0];
-                        //画面表示を制御する
-                        setControl($scope.update_set, false, false);
-                    }, 1, ['sys_id,name,is_default,application.name,application.scope,application.sys_id'], $scope.g_ck);
-                    //画面表示を制御する
-                    setControl($scope.update_set, false, false);
-                }, 1, ['value'], $scope.g_ck);
-            };
-
             //Sessionタブが押された場合、実行する
-            getCurrentUser = function (tabURL) {
+            initSessionTab = function (tabURL) {
                 //画面表示を制御する
-                setControl($scope.user, true, false);
+                setControl($scope.session, true, false);
                 //URLをマッチする
                 var currentURL = tabURL.match(/^https:\/\/[a-zA-Z0-9.-]*\//);
                 //SNOWのURL以外の場合、エラーとする
                 if (!isSNOWURL(tabURL) || (currentURL == null)) {
                     //エラーとして、画面表示を制御する
-                    setControl($scope.user, false, true);
+                    setControl($scope.session, false, true);
                     return;
                 }
 
                 getRecordDataJSON(currentURL[0] + 'api/now/table/sys_user?sysparm_query=sys_id=javascript:%20gs.getUserID()', function (rows) {
-                    if (rows == null || !rows.length) {
-                        //エラーとして、画面表示を制御する
-                        setControl($scope.user, false, true);
-                        return;
-                    }
-
-                    $scope.user = rows[0];
+                    $scope.session.user = rows[0];
                     //画面表示を制御する
-                    setControl($scope.user, false, false);
+                    setControl($scope.session, false, false);
                 }, 1, ['name, user_name, sys_id'], $scope.g_ck);
+
+                getRecordDataJSON(currentURL[0] + 'api/now/table/sys_user_preference?sysparm_query=name%3Dsys_update_set%5EuserDYNAMIC90d1921e5f510100a9ad2572f2b477fe', function (rows) {
+                    getRecordDataJSON(currentURL[0] + 'api/now/table/sys_update_set?sys_id=' + rows[0].value, function (rows) {
+                        $scope.session.update_set = rows[0];
+                        //画面表示を制御する
+                        setControl($scope.session, false, false);
+                    }, 1, ['sys_id,name,is_default,application.name,application.scope,application.sys_id'], $scope.g_ck);
+                    //画面表示を制御する
+                    setControl($scope.session, false, false);
+                }, 1, ['value'], $scope.g_ck);
             }
 
             getLastChanges = function (tabURL) {
@@ -388,20 +370,13 @@ sndevtoolsApp
                 $scope.server_nodes.loading = true;
                 $scope.server_nodes.error = false;
                 $scope.$apply();
-                var foundURL = tabURL.match(/^https:\/\/[a-zA-Z0-9.-]*\//);
-                if (!isSNOWURL(tabURL) || (foundURL == null)) {
-                    $scope.server_nodes.loading = false;
-                    $scope.server_nodes.error = true;
-                    $scope.$apply();
-                    return;
-                }
-
-                getRecordDataCSV(foundURL[0] + 'sys_cluster_state_list.do?sysparm_query', function (url, rows, url) {
+                var currentURL = tabURL.match(/^https:\/\/[a-zA-Z0-9.-]*\//);
+                getRecordDataJSON(currentURL[0] + 'api/now/table/sys_cluster_state?sysparm_query', function (rows) {
                     $scope.server_nodes_arr = rows;
                     $scope.server_nodes.loading = false;
                     $scope.server_nodes.error = false;
                     $scope.$apply();
-                }, foundURL[0], 8, "sys_id,system_id,status");
+                }, 10, ['sys_id,system_id,status'], $scope.g_ck);
             }
 
             initSearchTableHanedler = function (tabURL) {

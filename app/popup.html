@@ -97,13 +97,13 @@
             </th>
             <td class="value">
               <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;"
-                ng-if="user.loading && !user.error">
+                ng-if="session.loading && !session.error">
                 <div class="visually-hidden"></div>
               </span>
-              <a href="#" ng-if="!user.loading && !user.error"
-                ng-click="open_snow('nav_to.do?uri=sys_user.do?sys_id='+user.sys_id, true)">{{user.name}}
-                [{{user.user_name}}]</a>
-              <span ng-if="!user.loading && !user.sys_id">Please log in to ServiceNow</span>
+              <a href="#" ng-if="!session.loading && !session.error"
+                ng-click="open_snow('nav_to.do?uri=sys_user.do?sys_id='+session.user.sys_id, true)">{{session.user.name}}
+                [{{session.user.user_name}}]</a>
+              <span ng-if="!session.loading && !session.user.sys_id">Please log in to ServiceNow</span>
             </td>
           </tr>
           <tr>
@@ -112,11 +112,11 @@
             </th>
             <td class="value">
               <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;"
-                ng-if="user.loading && !user.error">
+                ng-if="session.loading && !session.error">
                 <div class="visually-hidden"></div>
               </span>
-              <a href="#" ng-if="!user.loading && !user.error"
-                ng-click="open_snow('nav_to.do?uri=sys_update_set.do?sys_id='+update_set.sys_id, true)">{{update_set.name}}</a>
+              <a href="#" ng-if="!session.loading && !session.error"
+                ng-click="open_snow('nav_to.do?uri=sys_update_set.do?sys_id='+session.update_set.sys_id, true)">{{session.update_set.name}}</a>
             </td>
           </tr>
           <tr>
@@ -125,12 +125,12 @@
             </th>
             <td class="value">
               <span class="spinner-border spinner-border-sm" style="width: 15px; height: 15px;"
-                ng-if="user.loading && !user.error">
+                ng-if="session.loading && !session.error">
                 <div class="visually-hidden"></div>
               </span>
-              <a href="#" ng-if="!user.loading && !user.error"
-                ng-click="open_snow('$studio.do?sysparm_transaction_scope='+update_set['application.sys_id'])">{{update_set['application.name']}}</a>
-              <span ng-if="!user.loading && !user.error">[{{update_set['application.scope']}}]</span>
+              <a href="#" ng-if="!session.loading && !session.error"
+                ng-click="open_snow('$studio.do?sysparm_transaction_scope='+session.update_set['application.sys_id'])">{{session.update_set['application.name']}}</a>
+              <span ng-if="!session.loading && !session.error">[{{session.update_set['application.scope']}}]</span>
             </td>
           </tr>
         </tbody>
